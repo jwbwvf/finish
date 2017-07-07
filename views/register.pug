@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  h1 register
+  form(name="register", method="post")
+    div.input
+      span.label Name:
+        input(type="text", name="name")
+      br
+      span.label Email:
+        input(type="text", name="email")
+      br
+      span.label Confirm Email:
+        input(type="text", name="confirm_email")
+      br
+      span.label Password:
+        input(type="password", name="password")
+      br
+      span.label Confirm Password:
+        input(type="password", name="confirm_password")
+        div.actions
+          input(type="submit", value="login")   

@@ -1,0 +1,65 @@
+temp todo list to get finish up and deployed
+
+https://expressjs.com/en/advanced/best-practice-performance.html
+
+=========================
+code
+=========================
+Use gzip compression
+Don’t use synchronous functions
+Do logging correctly
+Handle exceptions properly
+
+
+
+=========================
+devops
+=========================
+Set NODE_ENV to “production”
+Ensure your app automatically restarts
+Run your app in a cluster
+Cache request results
+Use a load balancer
+Use a reverse proxy
+
+==========================
+auth
+==========================
+https://github.com/expressjs/express/tree/master/examples/auth?_ga=2.87075805.414482620.1496031171-1154778436.1488426284
+use https
+
+==========================
+security
+==========================
+http://expressjs.com/en/advanced/best-practice-security.html
+
+==========================
+my todo
+==========================
+get bootstrap working
+  center view
+  color ever other row
+  add button
+
+
+setup the mongoose promise in one place instead of needing it everywhere mongoose is used
+
+add a profile page so user can change password
+
+setup route access
+
+add something to clean titles to be consistant format
+
+how to handle delete/update in UX/UI
+
+limit what the query returns
+
+unit tests, mocha?
+
+handle all errors as graceful messages instead of error page
+
+token?
+
+look into if pug sanatizes inputs or if it needs to be handled by express
+
+work message flash into the layout instead of each view

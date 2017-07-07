@@ -1,0 +1,8 @@
+extend layout
+
+block content
+  h1= title
+  p=message
+  ul
+    for book in books
+      li(value=book._id)= book.title

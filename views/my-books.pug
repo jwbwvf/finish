@@ -1,0 +1,13 @@
+extend layout
+
+block content
+  h1= title
+  form(name="add book", method="post")
+    div.input
+    span.label Title
+      input(type="text", name="title")
+    div.actions
+      input(type="submit", value="add")
+  ul
+    for book in books
+      li(value=book._id)= book.title
