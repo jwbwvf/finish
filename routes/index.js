@@ -10,35 +10,36 @@ var User = mongoose.model('User');
 
 
 /* GET home page. */
-// router.get('/', function(req, res, next) {
-//   res.redirect('/login');
-// });
+router.get('/', (req, res) => {
+  const html = pug.renderFile('./views/index.pug', { title: "Landing" });
+  res.send(html);
+});
 
 //authentication
 router.post('/register', (req, res) => {
-	if (!req.body.name || 
+	if (!req.body.name ||
       !req.body.email ||
       !req.body.confirm_email ||
       !req.body.password ||
       !req.body.confirm_password) {
-		
+
     const html = pug.renderFile('./views/register.pug', { message : "All fields are required." });
-    res.send(html);    
+    res.send(html);
 		return;
 	};
 
-  if (req.body.email !== req.body.confirm_email) {    
+  if (req.body.email !== req.body.confirm_email) {
     const html = pug.renderFile('./views/register.pug', { message: "Email fields do not match, try again." });
     res.send(html);
     return;
   }
 
-  if (req.body.password !== req.body.confirm_password) {    
+  if (req.body.password !== req.body.confirm_password) {
     const html = pug.renderFile('./views/register.pug', { message: "Password fields do not match, try again." });
-    res.send(html);    
+    res.send(html);
     return;
   }
-  
+
 	var user = new User();
 
 	user.name = req.body.name;
@@ -46,7 +47,7 @@ router.post('/register', (req, res) => {
 
 	user.setPassword(req.body.password);
 
-	user.save(function (err) {		
+	user.save(function (err) {
 		if (err) {
 			res.status(400).send(err);
 			return;
@@ -74,18 +75,18 @@ router.get('/register', (req, res) => {
 router.post('/login', function (req, res, next) {
   if (!req.body.email || !req.body.password){
     const html = pug.renderFile('./views/login.pug', { message: 'All fields are required.' });
-    return res.send(html);    
+    return res.send(html);
   }
 
   passport.authenticate('local', function (err, user, info) {
     if (err) { return next(err); }
-    if (!user) { 
+    if (!user) {
       const html = pug.renderFile('./views/login.pug', { message: 'Incorrect email or password.' });
       return res.send(html);
     }
     req.logIn(user, function (err) {
       if (err) { return next(err); }
-      
+
       var token = user.generateJwt();
       return res.cookie('token', token).redirect('/users/' + user._id + '/books');
     });

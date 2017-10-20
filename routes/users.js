@@ -61,6 +61,11 @@ router.param('userId', (req, res, next, userId) => {
   });
 });
 
+router.get('/profile', (req, res) => {
+  const html = pug.renderFile('./views/profile.pug', {title: 'Profile', isLoggedIn:isLoggedIn(req)})
+  res.status(200).send(html);
+})
+
 router.get(['/:userId/books'], (req, res) => {
   const view = isLoggedInUser(req) ? './views/my-' : './views/';
   const category = req.category

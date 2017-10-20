@@ -58,8 +58,12 @@ unit tests, mocha?
 
 handle all errors as graceful messages instead of error page
 
-token?
-
 look into if pug sanatizes inputs or if it needs to be handled by express
 
-work message flash into the layout instead of each view
+create landing page with trending finished books and login register options
+  landing needs a method to get the top 5 books and list them
+
+navigation
+ my books (home?)
+ how to view friends?
+
