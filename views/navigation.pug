@@ -1,5 +1,8 @@
-navigation#navigation
+navigation.nav.navbar-nav.navbar-right
   if isLoggedIn
     a(href='/logout') logout
   else
-    a(href='/login') login
+    ul
+      li
+        a(href='/login')
+          span.glyphicon.glyphicon-log-in login

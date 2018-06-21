@@ -1,12 +1,18 @@
-extend layout
+extends ../node_modules/jade-bootstrap/_bootstrap
+append styles
+  //- Custom styles for this template
+  link(href='../css/signin.css', rel='stylesheet')
+block body
+  .container
+    form.form-signin(method='POST' action='/login')
+      h2.form-signin-heading Please sign in
+      label.sr-only(for='email') Email address
+      input#inputEmail.form-control(type='email', placeholder='Email address', name='email', required='', autofocus='')
+      label.sr-only(for='password') Password
+      input#inputPassword.form-control(type='password', placeholder='Password', name='password', required='')
+      .checkbox
+        label
+          input(type='checkbox', value='remember-me')
+          |  Remember me
+      button.btn.btn-lg.btn-primary.btn-block(type='submit') Sign in
 
-block content
-  h1 login
-  form(name="login", method="post")
-    div.input
-      span.label Email:
-        input(type="text", name="email")
-      span.label Password:
-        input(type="password", name="password")
-        div.actions
-          input(type="submit", value="login")  

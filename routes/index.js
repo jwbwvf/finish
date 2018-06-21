@@ -1,97 +1,94 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 
-var passport = require('passport');
-var pug = require('pug');
+var passport = require('passport')
+var pug = require('pug')
 
-var mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
-var User = mongoose.model('User');
-
+var mongoose = require('mongoose')
+mongoose.Promise = global.Promise
+var User = mongoose.model('User')
 
 /* GET home page. */
 router.get('/', (req, res) => {
-  const html = pug.renderFile('./views/index.pug', { title: "Landing" });
-  res.send(html);
-});
+  const html = pug.renderFile('./views/index.pug', { title: 'Landing' })
+  res.send(html)
+})
 
-//authentication
+// authentication
 router.post('/register', (req, res) => {
-	if (!req.body.name ||
+  if (!req.body.name ||
       !req.body.email ||
       !req.body.confirm_email ||
       !req.body.password ||
       !req.body.confirm_password) {
-
-    const html = pug.renderFile('./views/register.pug', { message : "All fields are required." });
-    res.send(html);
-		return;
-	};
+    const html = pug.renderFile('./views/register.pug', { message: 'All fields are required.' })
+    res.send(html)
+    return
+  };
 
   if (req.body.email !== req.body.confirm_email) {
-    const html = pug.renderFile('./views/register.pug', { message: "Email fields do not match, try again." });
-    res.send(html);
-    return;
+    const html = pug.renderFile('./views/register.pug', { message: 'Email fields do not match, try again.' })
+    res.send(html)
+    return
   }
 
   if (req.body.password !== req.body.confirm_password) {
-    const html = pug.renderFile('./views/register.pug', { message: "Password fields do not match, try again." });
-    res.send(html);
-    return;
+    const html = pug.renderFile('./views/register.pug', { message: 'Password fields do not match, try again.' })
+    res.send(html)
+    return
   }
 
-	var user = new User();
+  var user = new User()
 
-	user.name = req.body.name;
-	user.email = req.body.email;
+  user.name = req.body.name
+  user.email = req.body.email
 
-	user.setPassword(req.body.password);
+  user.setPassword(req.body.password)
 
-	user.save(function (err) {
-		if (err) {
-			res.status(400).send(err);
-			return;
-		}
+  user.save(function (err) {
+    if (err) {
+      res.status(400).send(err)
+      return
+    }
 
-      var token = user.generateJwt();
-      return res.cookie('token', token).redirect('/users/' + user._id + '/books');
-	});
-});
+    var token = user.generateJwt()
+    return res.cookie('token', token).redirect('/users/' + user._id + '/books')
+  })
+})
 
 router.get('/logout', (req, res) => {
-  return res.cookie('token', "").redirect('/login');
-});
+  return res.cookie('token', '').redirect('/login')
+})
 
 router.get('/login', (req, res) => {
-	const html = pug.renderFile('./views/login.pug');
-  res.send(html);
-});
+  const html = pug.renderFile('./views/login.pug')
+  res.send(html)
+})
 
 router.get('/register', (req, res) => {
-  const html = pug.renderFile('./views/register.pug');
-  res.send(html);
+  const html = pug.renderFile('./views/register.pug')
+  res.send(html)
 })
 
 router.post('/login', function (req, res, next) {
-  if (!req.body.email || !req.body.password){
-    const html = pug.renderFile('./views/login.pug', { message: 'All fields are required.' });
-    return res.send(html);
+  if (!req.body.email || !req.body.password) {
+    const html = pug.renderFile('./views/login.pug', { message: 'All fields are required.' })
+    return res.send(html)
   }
 
   passport.authenticate('local', function (err, user, info) {
-    if (err) { return next(err); }
+    if (err) { return next(err) }
     if (!user) {
-      const html = pug.renderFile('./views/login.pug', { message: 'Incorrect email or password.' });
-      return res.send(html);
+      const html = pug.renderFile('./views/login.pug', { message: 'Incorrect email or password.' })
+      return res.send(html)
     }
     req.logIn(user, function (err) {
-      if (err) { return next(err); }
+      if (err) { return next(err) }
 
-      var token = user.generateJwt();
-      return res.cookie('token', token).redirect('/users/' + user._id + '/books');
-    });
-  })(req, res, next);
-});
+      var token = user.generateJwt()
+      return res.cookie('token', token).redirect('/users/' + user._id + '/books')
+    })
+  })(req, res, next)
+})
 
-
-module.exports = router;
+module.exports = router
