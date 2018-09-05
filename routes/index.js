@@ -24,7 +24,7 @@ router.post('/register', (req, res) => {
     const html = pug.renderFile('./views/register.pug', { message: 'All fields are required.' })
     res.send(html)
     return
-  };
+  }
 
   if (req.body.email !== req.body.confirm_email) {
     const html = pug.renderFile('./views/register.pug', { message: 'Email fields do not match, try again.' })
