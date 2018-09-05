@@ -71,7 +71,7 @@ router.get('/profile', (req, res) => {
 router.get(['/:userId/books'], (req, res) => {
   const view = isLoggedInUser(req) ? './views/my-' : './views/'
   const category = req.category
-  const html = pug.renderFile(view + category + '.pug', {title: category, [category]: req.user[category], isLoggedIn: isLoggedIn(req)})
+  const html = pug.renderFile(view + category + '.pug', {title: category, [category]: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req)})
   res.status(200).send(html)
 })
 
@@ -91,7 +91,7 @@ router.post('/:userId/books', (req, res) => {
     }
 
     const category = req.category
-    const html = pug.renderFile('./views/my-' + category + '.pug', {title: category, [category]: req.user[category], isLoggedIn: isLoggedIn(req)})
+    const html = pug.renderFile('./views/my-' + category + '.pug', {title: category, [category]: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req)})
     res.status(200).send(html)
   })
 })
