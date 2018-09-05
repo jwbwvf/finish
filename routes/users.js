@@ -37,7 +37,7 @@ function isLoggedInUser (req) {
   const verifiedJwt = req.user.verifyJwt(token)
 
   const loggedInUserId = verifiedJwt._id
-  const pageUserId = req.user._id
+  const pageUserId = req.user.id
 
   return loggedInUserId === pageUserId
 }

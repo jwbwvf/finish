@@ -18,21 +18,21 @@ router.get('/', (req, res) => {
 router.post('/register', (req, res) => {
   if (!req.body.name ||
       !req.body.email ||
-      !req.body.confirm_email ||
+      !req.body.confirmEmail ||
       !req.body.password ||
-      !req.body.confirm_password) {
+      !req.body.confirmPassword) {
     const html = pug.renderFile('./views/register.pug', { message: 'All fields are required.' })
     res.send(html)
     return
   }
 
-  if (req.body.email !== req.body.confirm_email) {
+  if (req.body.email !== req.body.confirmEmail) {
     const html = pug.renderFile('./views/register.pug', { message: 'Email fields do not match, try again.' })
     res.send(html)
     return
   }
 
-  if (req.body.password !== req.body.confirm_password) {
+  if (req.body.password !== req.body.confirmPassword) {
     const html = pug.renderFile('./views/register.pug', { message: 'Password fields do not match, try again.' })
     res.send(html)
     return

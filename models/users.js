@@ -24,9 +24,9 @@ var userSchema = new mongoose.Schema({
   books: [bookSchema]
 })
 
-var iterations = 1000
-var size = 16
-var digest = 'SHA1'
+const iterations = 1000
+const size = 16
+const digest = 'SHA1'
 
 // can't use arrow function in the methods below or it doesn't bind this
 userSchema.methods.setPassword = function (password) {
@@ -48,11 +48,11 @@ userSchema.methods.generateJwt = function () {
     email: this.email,
     name: this.name,
     exp: parseInt(expiry.getTime() / 1000)
-  }, '12345678')// process.env.JWT_SECRET);
+  }, process.env.JWT_SECRET)
 }
 
 userSchema.methods.verifyJwt = function (token) {
-  return jwt.verify(token, '12345678')// process.env.JWT_SECRET);
+  return jwt.verify(token, process.env.JWT_SECRET)
 }
 
 userSchema.methods.addBook = function (book) {

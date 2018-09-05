@@ -1,13 +1,9 @@
 var mongoose = require('mongoose')
 
-var dbURI = 'mongodb://localhost/finish'
-
-if (process.env.NODE_ENV === 'production') {
-  dbURI = process.env.AWS_MONGO_URI
-}
+const dbURI = process.env.NODE_ENV === 'production' ? process.env.AWS_MONGO_URI : 'mongodb://localhost/finish'
 
 mongoose.Promise = global.Promise
-mongoose.connect(dbURI)
+mongoose.connect(dbURI, {useNewUrlParser: true})
 
 var db = mongoose.connection
 
