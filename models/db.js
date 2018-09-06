@@ -21,3 +21,4 @@ db.on('disconnected', () => {
 
 require('./users')
 require('./books')
+require('./games')

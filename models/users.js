@@ -1,5 +1,6 @@
 var mongoose = require('mongoose')// .set('debug', true);
 var bookSchema = require('./books')
+var gameSchema = require('./games')
 var crypto = require('crypto')
 var jwt = require('jsonwebtoken')
 
@@ -21,7 +22,8 @@ var userSchema = new mongoose.Schema({
     type: String,
     require: true
   },
-  books: [bookSchema]
+  books: [bookSchema],
+  games: [gameSchema]
 })
 
 const iterations = 1000
@@ -77,6 +79,30 @@ userSchema.methods.addBook = function (book) {
   })
 
   this.books = mapped.map((element) => { return books[element.index] })
+}
+
+userSchema.methods.addGame = function (game) {
+  if (!game || !game.title) {
+    return
+  }
+
+  // toUpperCase won't work for unicode characters
+  const alreadyExists = this.games.some(x => x.title.toUpperCase() === game.title.toUpperCase())
+  if (alreadyExists) {
+    return
+  }
+
+  this.games.push(game)
+
+  var games = this.games
+
+  // this sorting algorithm was from MDN Array.prototype.sort() Sorting with map
+  var mapped = games.map((element, i) => { return {index: i, value: element.title.toLowerCase()} })
+  mapped.sort((a, b) => {
+    return +(a.value > b.value) || +(a.value === b.value) - 1
+  })
+
+  this.games = mapped.map((element) => { return games[element.index] })
 }
 
 userSchema.methods.removeBookById = function (bookId) {

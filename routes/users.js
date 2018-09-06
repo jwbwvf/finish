@@ -6,19 +6,25 @@ mongoose.Promise = global.Promise
 
 var User = mongoose.model('User')
 var Book = mongoose.model('Book')
+var Game = mongoose.model('Game')
+
 var pug = require('pug')
 
 var jwt = require('express-jwt')
 var auth = jwt({
-  // secret :process.env.JWT_SECRET,
-  secret: '12345678',
+  secret: process.env.JWT_SECRET,
   userProperty: 'payload'
 })
 
 let category = ''
 
+const factory = {
+  'games': Game,
+  'books': Book
+}
+
 function isLoggedIn (req) {
-  if (!req.cookies || !req.cookies.token || !req.user || !req.user._id) {
+  if (!req.cookies || !req.cookies.token || !req.user || !req.user.id) {
     return false
   }
 
@@ -29,7 +35,7 @@ function isLoggedIn (req) {
 }
 
 function isLoggedInUser (req) {
-  if (!req.cookies || !req.cookies.token || !req.user || !req.user._id) {
+  if (!req.cookies || !req.cookies.token || !req.user || !req.user.id) {
     return false
   }
 
@@ -57,6 +63,7 @@ router.param('userId', (req, res, next, userId) => {
       return next(err)
     }
 
+    if (!user[category]) user[category] = []
     req.user = user
     req.category = category
     next()
@@ -68,23 +75,30 @@ router.get('/profile', (req, res) => {
   res.status(200).send(html)
 })
 
-router.get(['/:userId/books'], (req, res) => {
+router.get(['/:userId/books', '/:userId/games'], (req, res) => {
   const view = isLoggedInUser(req) ? './views/my-' : './views/'
   const category = req.category
   const html = pug.renderFile(view + category + '.pug', {title: category, [category]: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req)})
   res.status(200).send(html)
 })
 
-router.post('/:userId/books', (req, res) => {
+router.post(['/:userId/books', '/:userId/games'], (req, res) => {
   if (isLoggedInUser(req) === false) {
     const html = pug.renderFile('./views/' + category + '.pug', {title: category, [category]: req.user[category], message: 'You are not allowed to add.', isLoggedIn: isLoggedIn(req)})
     res.status(200).send(html)
   }
 
-  var book = new Book()
-  book.title = req.body.title
+  if (category === 'books') {
+    var book = new factory[category]()
+    book.title = req.body.title
 
-  req.user.addBook(book)
+    req.user.addBook(book)
+  } else if (category === 'games') {
+    var game = new factory[category]()
+    game.title = req.body.title
+
+    req.user.addGame(game)
+  }
   req.user.save((err) => {
     if (err) {
       res.status(400).send(err)
