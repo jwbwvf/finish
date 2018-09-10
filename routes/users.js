@@ -87,8 +87,8 @@ router.post('/:userId/category/:category', (req, res) => {
   // toUpperCase won't work for unicode characters
   const alreadyExists = req.user[category].some(x => x.title.toUpperCase() === categoryObject.title.toUpperCase())
   if (alreadyExists) {
-    console.log(`${category} by this title already exists`)
-    return
+    const html = pug.renderFile('./views/my-items.pug', { category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
+    return res.status(200).send(html)
   }
 
   req.user[category].push(categoryObject)
