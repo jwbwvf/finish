@@ -1,5 +1,6 @@
 const passport = require('passport')
-const {Strategy: LocalStrategy} = require('passport-local')
+const { isPasswordValid } = require('../auth/security')
+const { Strategy: LocalStrategy } = require('passport-local')
 const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 const User = mongoose.model('User')
@@ -15,15 +16,13 @@ passport.use(new LocalStrategy({ usernameField: 'email' },
         })
       }
 
-      if (!user.validPassword(password)) {
+      if (!isPasswordValid(password, user.salt, user.hash)) {
         return done(null, false, {
           message: 'Incorrect username or password'
         })
       }
 
-      user.hash = ''
       user.hash = undefined
-      user.salt = ''
       user.salt = undefined
       return done(null, user)
     })

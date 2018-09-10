@@ -7,7 +7,7 @@ var passport = require('passport')
 var compression = require('compression')
 
 require('./models/db')
-require('./config/passport')
+require('./auth/passport')
 
 var index = require('./routes/index')
 var users = require('./routes/users')

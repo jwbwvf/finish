@@ -3,6 +3,7 @@ append styles
   //- Custom styles for this template
   link(href='../css/signin.css', rel='stylesheet')
   link(href='../css/theme.css', rel='stylesheet')
+  link(href='../public/stylesheets/bootstrap.min.css', rel='stylesheet')
 block body
   +navbar-fixed("Finished.me","navbar","inverse")
     +nav_item("#","active") Home
@@ -10,9 +11,9 @@ block body
     +nav_item("#") Contact
   .container.theme-showcase(role='main')
     .jumbotron
-      form.form-signin(method="POST" action=`/users/${id}/books`)
-        h1.form-signin-heading Books
-        label.sr-only(for='title') Book
+      form.form-signin(method="POST" action=`/users/${id}/category/${category}`)
+        h1.form-signin-heading= category
+        label.sr-only(for='title')= category
         input#inputEmail.form-control(type='text', placeholder='', name='title', required='', autofocus='')
         button.btn.btn-lg.btn-primary.btn-block(type='submit') Add
       .table-response
@@ -21,6 +22,10 @@ block body
             tr
               th Title
           tbody
-          for book in books
+          for item in items
             tr
-              td= book.title
+              td= item.title
+                span.pull-right
+                  form(method="POST" action=`/users/${id}/category/${category}/delete`)
+                    input(type="hidden", name="id", value=`${item.id}`)
+                    button.float-right.glyphicon.glyphicon-trash(type='submit')

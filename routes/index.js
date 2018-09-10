@@ -8,10 +8,18 @@ var mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 var User = mongoose.model('User')
 
+const { generateJwt } = require('../auth/token')
+const { generateSalt, generateHash } = require('../auth/security')
+
 /* GET home page. */
 router.get('/', (req, res) => {
   const html = pug.renderFile('./views/index.pug', { title: 'Landing' })
   res.send(html)
+})
+
+router.get('/categories/:category', (req, res) => {
+  const category = req.params.category
+  res.json(JSON.stringify(category))
 })
 
 // authentication
@@ -43,15 +51,19 @@ router.post('/register', (req, res) => {
   user.name = req.body.name
   user.email = req.body.email
 
-  user.setPassword(req.body.password)
+  user.salt = generateSalt()
+  user.hash = generateHash(user.salt, req.body.password)
 
   user.save(function (err) {
+    user.salt = undefined
+    user.hash = undefined
+
     if (err) {
       res.status(400).send(err)
       return
     }
 
-    var token = user.generateJwt()
+    var token = generateJwt(user._id)
     return res.cookie('token', token).redirect('/users/' + user._id + '/books')
   })
 })
@@ -85,7 +97,7 @@ router.post('/login', function (req, res, next) {
     req.logIn(user, function (err) {
       if (err) { return next(err) }
 
-      var token = user.generateJwt()
+      var token = generateJwt(user._id)
       return res.cookie('token', token).redirect('/users/' + user._id + '/books')
     })
   })(req, res, next)

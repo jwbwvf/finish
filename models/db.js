@@ -3,7 +3,7 @@ var mongoose = require('mongoose')
 const dbURI = process.env.NODE_ENV === 'production' ? process.env.AWS_MONGO_URI : 'mongodb://localhost/finish'
 
 mongoose.Promise = global.Promise
-mongoose.connect(dbURI, {useNewUrlParser: true})
+mongoose.connect(dbURI, { useNewUrlParser: true })
 
 var db = mongoose.connection
 
@@ -20,5 +20,3 @@ db.on('disconnected', () => {
 })
 
 require('./users')
-require('./books')
-require('./games')

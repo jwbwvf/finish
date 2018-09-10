@@ -5,23 +5,10 @@ var mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 
 var User = mongoose.model('User')
-var Book = mongoose.model('Book')
-var Game = mongoose.model('Game')
+
+const { verifyJwt } = require('../auth/token')
 
 var pug = require('pug')
-
-var jwt = require('express-jwt')
-var auth = jwt({
-  secret: process.env.JWT_SECRET,
-  userProperty: 'payload'
-})
-
-let category = ''
-
-const factory = {
-  'games': Game,
-  'books': Book
-}
 
 function isLoggedIn (req) {
   if (!req.cookies || !req.cookies.token || !req.user || !req.user.id) {
@@ -29,7 +16,7 @@ function isLoggedIn (req) {
   }
 
   const token = req.cookies.token
-  const verifiedJwt = req.user.verifyJwt(token)
+  const verifiedJwt = verifyJwt(token)
 
   return verifiedJwt.exp > Date.now() / 1000
 }
@@ -40,19 +27,26 @@ function isLoggedInUser (req) {
   }
 
   const token = req.cookies.token
-  const verifiedJwt = req.user.verifyJwt(token)
+  const verifiedJwt = verifyJwt(token)
 
-  const loggedInUserId = verifiedJwt._id
+  const loggedInUserId = verifiedJwt.id
   const pageUserId = req.user.id
 
   return loggedInUserId === pageUserId
 }
 
+function isAllowedToDelete (req, res, next) {
+  if (isLoggedInUser(req)) next()
+}
+
+router.param('category', (req, res, next) => {
+  // TODO good place to filter by allowed categories ie books, games, etc
+  req.params.category = req.params.category.toLowerCase()
+  next()
+})
+
 router.param('userId', (req, res, next, userId) => {
-  // pull the category off the end of the url
-  const url = req.url
-  const splits = url.split('/')
-  category = splits[2].toLowerCase()
+  const category = req.params.category.toLowerCase()
 
   User.findById(userId, category, (err, user) => {
     if (!user) {
@@ -65,66 +59,79 @@ router.param('userId', (req, res, next, userId) => {
 
     if (!user[category]) user[category] = []
     req.user = user
-    req.category = category
     next()
   })
 })
 
 router.get('/profile', (req, res) => {
-  const html = pug.renderFile('./views/profile.pug', {title: 'Profile', isLoggedIn: isLoggedIn(req)})
-  res.status(200).send(html)
+  const html = pug.renderFile('./views/profile.pug', { title: 'Profile', isLoggedIn: isLoggedIn(req) })
+  return res.status(200).send(html)
 })
 
-router.get(['/:userId/books', '/:userId/games'], (req, res) => {
-  const view = isLoggedInUser(req) ? './views/my-' : './views/'
-  const category = req.category
-  const html = pug.renderFile(view + category + '.pug', {title: category, [category]: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req)})
-  res.status(200).send(html)
+router.get('/:userId/category/:category', (req, res) => {
+  const view = isLoggedInUser(req) ? './views/my-items.pug' : './views/items.pug'
+  const category = req.params.category
+  const html = pug.renderFile(view, { category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
+  return res.status(200).send(html)
 })
 
-router.post(['/:userId/books', '/:userId/games'], (req, res) => {
+router.post('/:userId/category/:category', (req, res) => {
+  const category = req.params.category
   if (isLoggedInUser(req) === false) {
-    const html = pug.renderFile('./views/' + category + '.pug', {title: category, [category]: req.user[category], message: 'You are not allowed to add.', isLoggedIn: isLoggedIn(req)})
-    res.status(200).send(html)
+    const html = pug.renderFile('./views/items.pug', { category, items: req.user[category], message: 'You are not allowed to add.', isLoggedIn: isLoggedIn(req) })
+    return res.status(200).send(html)
   }
 
-  if (category === 'books') {
-    var book = new factory[category]()
-    book.title = req.body.title
+  const categoryObject = { title: req.body.title }
 
-    req.user.addBook(book)
-  } else if (category === 'games') {
-    var game = new factory[category]()
-    game.title = req.body.title
-
-    req.user.addGame(game)
+  // toUpperCase won't work for unicode characters
+  const alreadyExists = req.user[category].some(x => x.title.toUpperCase() === categoryObject.title.toUpperCase())
+  if (alreadyExists) {
+    console.log(`${category} by this title already exists`)
+    return
   }
+
+  req.user[category].push(categoryObject)
+
+  const categoryArray = req.user[category]
+
+  // this sorting algorithm was from MDN Array.prototype.sort() Sorting with map
+  var mapped = categoryArray.map((element, i) => { return { index: i, value: element.title.toLowerCase() } })
+  mapped.sort((a, b) => {
+    return +(a.value > b.value) || +(a.value === b.value) - 1
+  })
+
+  req.user[category] = mapped.map((element) => { return categoryArray[element.index] })
+
   req.user.save((err) => {
     if (err) {
-      res.status(400).send(err)
+      return res.status(400).send(err)
     }
 
-    const category = req.category
-    const html = pug.renderFile('./views/my-' + category + '.pug', {title: category, [category]: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req)})
-    res.status(200).send(html)
+    const html = pug.renderFile('./views/my-items.pug', { category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
+    return res.status(200).send(html)
   })
 })
 
-router.delete('/:userId/books/:bookId', auth, (req, res, next) => {
-  if (isLoggedInUser(req) === false) {
-    const html = pug.renderFile('./views/' + category + '.pug', {title: category, [category]: req.user[category], message: 'You are not allowed to delete.'})
-    res.status(200).send(html)
+router.post('/:userId/category/:category/delete', isAllowedToDelete, (req, res, next) => {
+  const category = req.params.category
+
+  const { id } = req.body
+
+  var index = req.user[category].findIndex(x => x._id.toString() === id)
+  if (index > -1) {
+    req.user[category].splice(index, 1)
   }
 
-  var bookId = req.params.bookId
-
-  req.user.removeBookById(bookId)
   req.user.save((err) => {
     if (err) {
-      res.status(400).send(err)
+      return res.status(400).send(err)
     }
 
-    res.status(200).send(req.user)
+    const view = isLoggedInUser(req) ? './views/my-items.pug' : './views/items.pug'
+    const category = req.params.category
+    const html = pug.renderFile(view, { category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
+    return res.status(200).send(html)
   })
 })
 

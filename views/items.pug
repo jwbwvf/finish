@@ -3,6 +3,7 @@ append styles
   //- Custom styles for this template
   link(href='../css/signin.css', rel='stylesheet')
   link(href='../css/theme.css', rel='stylesheet')
+  link(href='../public/stylesheets/bootstrap.min.css', rel='stylesheet')
 block body
   +navbar-fixed("Finished.me","navbar","inverse")
     +nav_item("#","active") Home
@@ -10,17 +11,13 @@ block body
     +nav_item("#") Contact
   .container.theme-showcase(role='main')
     .jumbotron
-      form.form-signin(method="POST" action=`/users/${id}/games`)
-        h1.form-signin-heading Games
-        label.sr-only(for='title') Game
-        input#inputEmail.form-control(type='text', placeholder='', name='title', required='', autofocus='')
-        button.btn.btn-lg.btn-primary.btn-block(type='submit') Add
+      h1= category
       .table-response
         table.table.table-striped
           thead
             tr
               th Title
           tbody
-          for game in games
+          for item in items
             tr
-              td= game.title
+              td= item.title
