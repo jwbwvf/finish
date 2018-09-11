@@ -1,9 +1,7 @@
 extends ../node_modules/jade-bootstrap/_bootstrap
 append styles
   //- Custom styles for this template
-  link(href='../css/signin.css', rel='stylesheet')
-  link(href='../css/theme.css', rel='stylesheet')
-  link(href='../public/stylesheets/bootstrap.min.css', rel='stylesheet')
+  link(href='/stylesheets/style.css', rel='stylesheet')
 block body
   +navbar-fixed("Finished.me","navbar","inverse")
     +nav_item("#","active") Home
@@ -28,4 +26,4 @@ block body
                 span.pull-right
                   form(method="POST" action=`/users/${id}/category/${category}/delete`)
                     input(type="hidden", name="id", value=`${item.id}`)
-                    button.float-right.glyphicon.glyphicon-trash(type='submit')
+                    button.icon-button.glyphicon.glyphicon-trash(type='submit')
