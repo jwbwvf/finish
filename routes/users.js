@@ -10,6 +10,8 @@ const { verifyJwt } = require('../auth/token')
 
 var pug = require('pug')
 
+const categories = require('../config/categories')
+
 function isLoggedIn (req) {
   if (!req.cookies || !req.cookies.token || !req.user || !req.user.id) {
     return false
@@ -71,7 +73,7 @@ router.get('/profile', (req, res) => {
 router.get('/:userId/category/:category', (req, res) => {
   const view = isLoggedInUser(req) ? './views/my-items.pug' : './views/items.pug'
   const category = req.params.category
-  const html = pug.renderFile(view, { category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
+  const html = pug.renderFile(view, { categories, category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
   return res.status(200).send(html)
 })
 
@@ -87,7 +89,7 @@ router.post('/:userId/category/:category', (req, res) => {
   // toUpperCase won't work for unicode characters
   const alreadyExists = req.user[category].some(x => x.title.toUpperCase() === categoryObject.title.toUpperCase())
   if (alreadyExists) {
-    const html = pug.renderFile('./views/my-items.pug', { category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
+    const html = pug.renderFile('./views/my-items.pug', { categories, category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
     return res.status(200).send(html)
   }
 
@@ -108,7 +110,7 @@ router.post('/:userId/category/:category', (req, res) => {
       return res.status(400).send(err)
     }
 
-    const html = pug.renderFile('./views/my-items.pug', { category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
+    const html = pug.renderFile('./views/my-items.pug', { categories, category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
     return res.status(200).send(html)
   })
 })
@@ -130,7 +132,7 @@ router.post('/:userId/category/:category/delete', isAllowedToDelete, (req, res, 
 
     const view = isLoggedInUser(req) ? './views/my-items.pug' : './views/items.pug'
     const category = req.params.category
-    const html = pug.renderFile(view, { category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
+    const html = pug.renderFile(view, { categories, category, items: req.user[category], id: req.user.id, isLoggedIn: isLoggedIn(req) })
     return res.status(200).send(html)
   })
 })
