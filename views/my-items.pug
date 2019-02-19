@@ -4,7 +4,7 @@ append styles
   link(href='/stylesheets/style.css', rel='stylesheet')
 block body
   nav.navbar.navbar-inverse.navbar-fixed-top
-    .container
+    .container-fluid
       .navbar-header
         button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
           span.sr-only Toggle navigation
@@ -16,7 +16,17 @@ block body
         ul.nav.navbar-nav
           for category in categories
             +nav_item(`/users/${id}/category/${category}`, '', 'active')=category
-
+        ul.nav.navbar-nav.navbar-right
+          -if(isLoggedIn)
+            li
+              a(href='/logout')
+                span.glyphicon.glyphicon-log-out
+                |   logout
+          -else
+            li
+              a(href='/login')
+                span.glyphicon.glyphicon-log-in
+                |   login
   .container.theme-showcase(role='main')
     .jumbotron
       form.form-signin(method="POST" action=`/users/${id}/category/${category}`)
