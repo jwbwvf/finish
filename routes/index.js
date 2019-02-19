@@ -98,7 +98,7 @@ router.post('/login', function (req, res, next) {
       if (err) { return next(err) }
 
       var token = generateJwt(user._id)
-      return res.cookie('token', token).redirect('/users/' + user._id + '/books')
+      return res.cookie('token', token).redirect('/users/' + user._id + '/category/books')
     })
   })(req, res, next)
 })
