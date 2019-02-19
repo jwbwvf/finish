@@ -4,6 +4,8 @@ append styles
   link(href='../css/signin.css', rel='stylesheet')
 block body
   .container
+    -if(message)
+        div.alert.alert-warning #{message}
     form.form-signin(method='POST' action='/login')
       h2.form-signin-heading Please sign in
       label.sr-only(for='email') Email address
